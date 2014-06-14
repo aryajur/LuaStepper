@@ -1,0 +1,28 @@
+# depslib dependency file v1.0
+1397736873 source:c:\users\milindgupta\documents\home_hub\source\internalclosed\luastepper\luastepper.c
+	<windows.h>
+	<stdio.h>
+	<string.h>
+	"lua.h"
+	"lualib.h"
+	"lauxlib.h"
+
+1384175356 c:\users\milindgupta\documents\home_hub\source\internalclosed\luastepper\lua.h
+	<stdarg.h>
+	<stddef.h>
+	"luaconf.h"
+
+1365792528 c:\users\milindgupta\documents\home_hub\source\internalclosed\luastepper\luaconf.h
+	<limits.h>
+	<stddef.h>
+	<stdio.h>
+	<math.h>
+
+1365792528 c:\users\milindgupta\documents\home_hub\source\internalclosed\luastepper\lualib.h
+	"lua.h"
+
+1365792528 c:\users\milindgupta\documents\home_hub\source\internalclosed\luastepper\lauxlib.h
+	<stddef.h>
+	<stdio.h>
+	"lua.h"
+
