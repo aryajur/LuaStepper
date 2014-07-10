@@ -327,7 +327,7 @@ static int addTask(lua_State *L)
     luaL_requiref(taskq[i].luaVM, LUA_STRLIBNAME, luaopen_string, 1);            // String library
     luaL_requiref(taskq[i].luaVM, LUA_BITLIBNAME, luaopen_bit32, 1);             // Bit library
     luaL_requiref(taskq[i].luaVM, LUA_MATHLIBNAME, luaopen_math, 1);             // Math library
-    luaL_requiref(taskq[i].luaVM, LUA_MATHLIBNAME, luaopen_package, 1);             // Math library
+    luaL_requiref(taskq[i].luaVM, LUA_LOADLIBNAME, luaopen_package, 1);          // Package library
     lua_pop(taskq[i].luaVM, 6);  // remove libraries from the stack
 //
 	static const struct luaL_Reg threadFuncs[] = {
