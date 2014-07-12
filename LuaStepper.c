@@ -29,7 +29,7 @@
 #define urgentTasks 2
 #define LS_DEFSTEPS 10
 
-#define VERSION     "1.14.06.08"
+#define VERSION     "1.14.07.12"
 
 struct Task
 {
@@ -324,6 +324,8 @@ static int addTask(lua_State *L)
     luaL_requiref(taskq[i].luaVM, "_G", luaopen_base, 1);                        // Base Library
     luaL_requiref(taskq[i].luaVM, LUA_COLIBNAME, luaopen_coroutine, 1);          // Coroutine library
     luaL_requiref(taskq[i].luaVM, LUA_TABLIBNAME, luaopen_table, 1);             // Table library
+    luaL_requiref(taskq[i].luaVM, LUA_IOLIBNAME, luaopen_io, 1);                 // io library
+    luaL_requiref(taskq[i].luaVM, LUA_OSLIBNAME, luaopen_os, 1);                 // os library
     luaL_requiref(taskq[i].luaVM, LUA_STRLIBNAME, luaopen_string, 1);            // String library
     luaL_requiref(taskq[i].luaVM, LUA_BITLIBNAME, luaopen_bit32, 1);             // Bit library
     luaL_requiref(taskq[i].luaVM, LUA_MATHLIBNAME, luaopen_math, 1);             // Math library
@@ -370,65 +372,6 @@ static int addTask(lua_State *L)
 
 	// Execute tabletostring function addition and this code first of all:
 
-/*
-do
-	-- Make Local copies of resume and yield
-	local coresume = coroutine.resume
-	local coyield = coroutine.yield
-
-	-- Local buffer to pass variables between a resume and yield
-	local yieldToRes
-	local resToYield
-
-	-- Utility functions provided by LuaStepper
-	local lstep = __ls_
-
-    -- Modified resume function to replace the coroutine resume function
-	local function modresume(...)
-        -- Get all the parameters to pass to the modified yield function
-		resToYield = table.pack(...)
-		-- Get the coroutine to resume and remove from the parameter list
-		local cor = resToYield[1]
-		table.remove(resToYield,1)
-		--print("Resume again")
-		coresume(cor)       -- resume
-		--print("B yielded")
-		-- Keep resuming the last resumed coroutine till the flag says it is yielding
-		while not lstep.hookBypass do
-			--print("Not main yield resume again")
-			coresume(cor)
-			--print("B yielded")
-		end
-		-- reset the flag to enable stepper hooks
-		lstep.hookBypass = nil
-		-- Get the values returned by the modified yield function and return them
-		local retValues = yieldToRes
-		yieldToRes = nil
-		-- This is the main coroutine return
-		return table.unpack(retValues)
-	end
-
-    -- Function to replace the coroutine yield function
-	local function modyield(...)
-		--print("This is the script yield")
-		-- Get the parameters yield wants to return to the resume code
-		yieldToRes = table.pack(...)
-		--print("Yield return")
-		-- Set flag to disable stepper hook
-		lstep.hookBypass = true
-		coyield()   -- Yield
-		-- Get the parameters passed by the modified resume function and return them
-		local retValues = resToYield
-		resToYield = nil
-		return table.unpack(retValues)
-	end
-
-	coroutine.resume = modresume
-	coroutine.yield = modyield
-	__ls_ = nil
-end
-
-*/
     msg =   "_LS={} "
             "function _LS.tableToString(t) "
             "   if type(t) ~= 'table' then return nil, 'Expected table parameter' end "
@@ -514,6 +457,8 @@ end
             "do"
             "   local pack = package "
             "   local req = require "
+            "   local oslib = os "
+            "   local iolib = io "
             "	local coresume = coroutine.resume"
             "	local coyield = coroutine.yield"
             "	local yieldToRes"
@@ -557,7 +502,7 @@ end
             "       if type(s) ~= 'string' then "
             "           return nil,'String expected' "
             "       end "
-            "       local sf = {pack=pack,req=req,lstep=lstep} "
+            "       local sf = {package=pack,require=req,os=oslib,io=iolib,lstep=lstep} "
             "       local sfm = {__index = _ENV,__newindex = function(t,k,v) _ENV[k]=v end} "
             "       setmetatable(sf,sfm) "
             "       local f,msg = load(s,nil,nil,sf) "
@@ -593,6 +538,8 @@ end
             "	coroutine.yield = modyield"
             "	__ls_ = nil "
             "   package = nil "
+            "   io = nil "
+            "   os = nil "
             "end ";
 //printf("\n\n\n\n\n\n%s\n\nTHIS IS MSG\n\n\n\n",msg);
     // run the LuaStepper initialization code
@@ -1145,13 +1092,6 @@ static int closeTask(lua_State *L)
     return 1;
 }
 
-// Function to return the Version string of LuaStepper
-static int version(lua_State *L)
-{
-    lua_pushstring(L,VERSION);
-    return 1;
-}
-
 // Function to get the number of tasks in task List
 static int getNumOfTasks(lua_State *L)
 {
@@ -1466,6 +1406,16 @@ static int runLoop(lua_State *L)
 	return 1;
 }	// static int runLoop(lua_State *L)
 
+/*
+// Removed from version 1.14.07.12
+// Function to return the Version string of LuaStepper
+static int version(lua_State *L)
+{
+    lua_pushstring(L,VERSION);
+    return 1;
+}
+*/
+
 // Library entry function
 int _EXPORT luaopen_LuaStepper(lua_State *L)
 {
@@ -1481,7 +1431,7 @@ int _EXPORT luaopen_LuaStepper(lua_State *L)
 			{"setTaskData",setTaskData},
 			{"setTaskTable",setTaskTable},
             {"registerCallBack",registerCallBack},
-			{"version",version},
+			//{"version",version},  // Removed version 1.14.07.12
 			{"runCode",runCode},
 			{NULL,NULL}
 	};
@@ -1498,5 +1448,9 @@ int _EXPORT luaopen_LuaStepper(lua_State *L)
 		taskq[i].suspended = 0;
 	}
 	luaL_newlib(L, funcs); // Just returns the module as a table
+	// Set the _VERSION number
+	lua_pushstring(L,"_VERSION");
+	lua_pushstring(L,VERSION);
+	lua_rawset(L,-3);
 	return 1;
 }	// function luaopen_LuaStepper ends here

@@ -10,9 +10,10 @@ local load = load
 local pairs = pairs
 local tostring = tostring
 local string = string
+local package = package
 
 
-local ver = "1.14.06.08"	-- Should correspond to the version of the C module
+local ver = "1.14.07.12"	-- Should correspond to the version of the C module
 
 -- Create the module table here
 local M = {}
@@ -32,7 +33,12 @@ getNumOfTasks = lstep_lib.getNumOfTasks
 closeTask = lstep_lib.closeTask
 suspendTask = lstep_lib.suspendTask
 resumeTask = lstep_lib.resumeTask
-version = lstep_lib.version()
+_VERSION = lstep_lib._VERSION
+if _VERSION ~= ver then
+	package.loaded[...] = "LuaStepper module version not correct. Lua Version: "..ver.." C library version: ".._VERSION
+	return nil
+end
+
 runCode = lstep_lib.runCode
 registerCallBack = lstep_lib.registerCallBack
 

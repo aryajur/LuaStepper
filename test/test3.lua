@@ -1,6 +1,6 @@
 -- Test case to test the detection of the switch
 ls = require("lStepper")
-print("LuaStepper version is:",ls.version)
+print("LuaStepper version is:",ls._VERSION)
 
 script1 = [[
 	print("Starting task 1")

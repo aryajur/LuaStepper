@@ -1,5 +1,5 @@
 LuaStepper = require("lStepper")
-print("LuaStepper version is:",LuaStepper.version)
+print("LuaStepper version is:",LuaStepper._VERSION)
 
 
 --script1 = "for i=1,10 do print('Script 1 i:',i) end"
