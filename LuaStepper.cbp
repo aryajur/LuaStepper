@@ -18,7 +18,7 @@
 					<Add directory="../LuaStepper" />
 				</Compiler>
 				<Linker>
-					<Add library="libs\lua52.dll" />
+					<Add library="libs\lua53.dll" />
 					<Add directory="../LuaStepper" />
 				</Linker>
 			</Target>
@@ -35,7 +35,7 @@
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
-					<Add library="libs\lua52.dll" />
+					<Add library="libs\lua53.dll" />
 					<Add directory="../LuaStepper" />
 				</Linker>
 			</Target>
