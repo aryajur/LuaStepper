@@ -1,5 +1,5 @@
 package = "LuaStepper"
-version = "1.16.06.15-3"
+version = "1.14.07.12-1"
 source = {
 	url = "git://github.com/aryajur/LuaStepper.git",
 	tag = "1.14.07"
@@ -13,12 +13,12 @@ description = {
 	license = "MIT" 
 }
 dependencies = {
-	"lua >= 5.1",
+	"lua >= 5.1"
 }
 build = {
 	type = "builtin",
 	modules = {
-		lstepper = "lstepper.lua"
+		lstepper = "lstepper.lua",
 		LuaStepper = "LuaStepper.c"
 	}
 }
