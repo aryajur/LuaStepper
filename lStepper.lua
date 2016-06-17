@@ -13,7 +13,7 @@ local string = string
 local package = package
 
 
-local ver = "1.14.07.12"	-- Should correspond to the version of the C module
+local ver = "1.16.06.17"	-- Should correspond to the version of the C module
 
 -- Create the module table here
 local M = {}
