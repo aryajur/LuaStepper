@@ -57,4 +57,3 @@ The API provided by the lua interface is accessed by requiring 'lStepper'. This 
 * __getTaskData__ - This function takes the task Index and gets the value of a key from the global environment of the task. If successful it returns the value. Otherwise it returns nil and a message.
 
 
-This module was developed for [Neukleus](http://www.neukleus.com)
