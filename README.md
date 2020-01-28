@@ -6,6 +6,11 @@ C module to allow a Lua state to run multiple Lua scripts in parallel. This is p
 ## Description
 LuaStepper is a module to help lua programs control simultaneous execution of multiple Lua threads without them needing to be coroutines.
 
+## Installation
+```
+luarocks instal LuaStepper
+```
+
 ## Thread creation details
 * Each thread environment contains all standard lua libraries supplied with Lua except debug, package, io and os libraries. These libraries are excluded since they can make the thread get stuck so alternatives are provided when needed
 * The environment has a table called _LS, which has the following functions and objects:

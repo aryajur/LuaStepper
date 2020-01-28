@@ -75,13 +75,16 @@ end
 -- Values: Number, String, Table, Boolean
 -- It also handles recursive and interlinked tables to recreate them back
 local function tableToString(t)
+	if type(t) ~= 'table' then return nil, 'Expected table parameter' end 
 	local rL = {cL = 1}	-- Table to track recursion into nested tables (cL = current recursion level)
 	rL[rL.cL] = {}
 	local tabIndex = {}	-- Table to store a list of tables indexed into a string and their variable name
 	local latestTab = 0
+	local result = {}
 	do
 		rL[rL.cL]._f,rL[rL.cL]._s,rL[rL.cL]._var = pairs(t)
-		rL[rL.cL].str = "t0={}"	-- t0 would be the main table
+		result[#result + 1] = 't0={}'	-- t0 would be the main table
+		--rL[rL.cL].str = 't0={}'
 		rL[rL.cL].t = t
 		rL[rL.cL].tabIndex = 0
 		tabIndex[t] = rL[rL.cL].tabIndex
@@ -93,78 +96,84 @@ local function tableToString(t)
 				break
 			elseif not k then
 				-- go up in recursion level
-				--print("GOING UP:     "..rL[rL.cL].str.."}")
-				rL[rL.cL-1].str = rL[rL.cL-1].str.."\n"..rL[rL.cL].str
+				--rL[rL.cL-1].str = rL[rL.cL-1].str..'\\n'..rL[rL.cL].str
 				rL.cL = rL.cL - 1
 				if rL[rL.cL].vNotDone then
-					-- This was a key recursion so add the key string and then doV
-					key = "t"..rL[rL.cL].tabIndex.."[t"..tostring(rL[rL.cL+1].tabIndex).."]"
-					rL[rL.cL].str = rL[rL.cL].str.."\n"..key.."="
+					key = 't'..rL[rL.cL].tabIndex..'[t'..tostring(rL[rL.cL+1].tabIndex)..']'
+					--rL[rL.cL].str = rL[rL.cL].str..'\\n'..key..'='
+					result[#result + 1] = "\n"..key.."="
 					v = rL[rL.cL].vNotDone
 				end
 				rL[rL.cL+1] = nil
 			else
 				-- Handle the key and value here
-				if type(k) == "number" then
-					key = "t"..rL[rL.cL].tabIndex.."["..tostring(k).."]"
-					rL[rL.cL].str = rL[rL.cL].str.."\n"..key.."="
-				elseif type(k) == "string" then
-					key = "t"..rL[rL.cL].tabIndex.."."..tostring(k)
-					rL[rL.cL].str = rL[rL.cL].str.."\n"..key.."="
+				if type(k) == 'number' then
+					key = 't'..rL[rL.cL].tabIndex..'['..tostring(k)..']'
+					--rL[rL.cL].str = rL[rL.cL].str..'\\n'..key..'='
+					result[#result + 1] = "\n"..key.."="
+				elseif type(k) == 'string' then
+					key = 't'..rL[rL.cL].tabIndex..'.'..tostring(k)
+					--rL[rL.cL].str = rL[rL.cL].str..'\\n'..key..'='
+					result[#result + 1] = "\n"..key.."="					
 				else
 					-- Table key
 					-- Check if the table already exists
 					if tabIndex[k] then
-						key = "t"..rL[rL.cL].tabIndex.."[t"..tabIndex[k].."]"
-						rL[rL.cL].str = rL[rL.cL].str.."\n"..key.."="
+						key = 't'..rL[rL.cL].tabIndex..'[t'..tabIndex[k]..']'
+						--rL[rL.cL].str = rL[rL.cL].str..'\\n'..key..'='
+						result[#result + 1] = "\n"..key.."="
 					else
 						-- Go deeper to stringify this table
 						latestTab = latestTab + 1
-						rL[rL.cL].str = rL[rL.cL].str.."\nt"..tostring(latestTab).."={}"	-- New table
+						--rL[rL.cL].str = rL[rL.cL].str..'\\nt'..tostring(latestTab)..'={}'
+						result[#result + 1] = "\nt"..tostring(latestTab).."={}"
 						rL[rL.cL].vNotDone = v
 						rL.cL = rL.cL + 1
 						rL[rL.cL] = {}
 						rL[rL.cL]._f,rL[rL.cL]._s,rL[rL.cL]._var = pairs(k)
 						rL[rL.cL].tabIndex = latestTab
 						rL[rL.cL].t = k
-						rL[rL.cL].str = ""
+						--rL[rL.cL].str = ''
 						tabIndex[k] = rL[rL.cL].tabIndex
 					end		-- if tabIndex[k] then ends
 				end		-- if type(k)ends
 			end		-- if not k and rL.cL == 1 then ends
 			if key then
 				rL[rL.cL].vNotDone = nil
-				if type(v) == "table" then
+				if type(v) == 'table' then
 					-- Check if this table is already indexed
 					if tabIndex[v] then
-						rL[rL.cL].str = rL[rL.cL].str.."t"..tabIndex[v]
+						--rL[rL.cL].str = rL[rL.cL].str..'t'..tabIndex[v]
+						result[#result + 1] = 't'..tabIndex[v]
 					else
 						-- Go deeper in recursion
 						latestTab = latestTab + 1
-						rL[rL.cL].str = rL[rL.cL].str.."{}" 
-						rL[rL.cL].str = rL[rL.cL].str.."\nt"..tostring(latestTab).."="..key	-- New table
+						--rL[rL.cL].str = rL[rL.cL].str..'{}'
+						--rL[rL.cL].str = rL[rL.cL].str..'\\nt'..tostring(latestTab)..'='..key
+						result[#result + 1] = "{}\nt"..tostring(latestTab)..'='..key		-- New table
 						rL.cL = rL.cL + 1
 						rL[rL.cL] = {}
 						rL[rL.cL]._f,rL[rL.cL]._s,rL[rL.cL]._var = pairs(v)
 						rL[rL.cL].tabIndex = latestTab
 						rL[rL.cL].t = v
-						rL[rL.cL].str = ""
+						--rL[rL.cL].str = ''
 						tabIndex[v] = rL[rL.cL].tabIndex
-						--print("GOING DOWN:",k)
 					end
-				elseif type(v) == "number" then
-					rL[rL.cL].str = rL[rL.cL].str..tostring(v)
-					--print(k,"=",v)
-				elseif type(v) == "boolean" then
-					rL[rL.cL].str = rL[rL.cL].str..tostring(v)				
+				elseif type(v) == 'number' then
+					--rL[rL.cL].str = rL[rL.cL].str..tostring(v)
+					result[#result + 1] = tostring(v)
+				elseif type(v) == 'boolean' then
+					--rL[rL.cL].str = rL[rL.cL].str..tostring(v)
+					result[#result + 1] = tostring(v)
 				else
-					rL[rL.cL].str = rL[rL.cL].str..string.format("%q",tostring(v))
-					--print(k,"=",v)
+					--rL[rL.cL].str = rL[rL.cL].str..string.format('%q',tostring(v))
+					result[#result + 1] = string.format('%q',tostring(v))
 				end		-- if type(v) == "table" then ends
-			end		-- if doV then ends
+			end		-- if key then ends
 		end		-- while true ends here
 	end		-- do ends
-	return rL[rL.cL].str
+	--return rL[rL.cL].str
+	return table.concat(result)
 end
 
 setTaskData = function(index,tab)
